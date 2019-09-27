@@ -86,6 +86,7 @@ class ExchangeTradingAlgorithmBase(TradingAlgorithm):
             get_history_window_attempts=5,
             retry_sleeptime=5,
             get_orderbook_attempts=5,
+            get_trades_attempts=5,
         )
 
         self.blotter = ExchangeBlotter(
@@ -1185,4 +1186,39 @@ class ExchangeTradingAlgorithmLive(ExchangeTradingAlgorithmBase):
             retry_exceptions=(ExchangeRequestError,),
             cleanup=lambda: log.warn('Requesting order book again'),
             args=(asset, order_type, limit),
+        )
+
+    def _get_trades(self, asset, my_trades=False, start_dt=None , limit=None):
+        exchange = self.exchanges[asset.exchange]
+        return exchange.get_trades(asset, my_trades, start_dt, limit)
+
+    @api_method
+    def get_trades(self, asset, my_trades=False, start_dt=None, limit=None):
+        """
+        Retrieve the last trades for the given trading pair.
+        This function is supported only in live and paper trading modes.
+
+        Parameters
+        ----------
+        asset: TradingPair
+
+        my_trades: str
+            Get only the my last trades
+        
+        start_dt: str
+            date from get
+
+        limit: int
+
+        Returns
+        -------
+        list[dict[str, float]
+        """
+        return retry(
+            action=self._get_trades,
+            attempts=self.attempts['get_trades_attempts'],
+            sleeptime=self.attempts['retry_sleeptime'],
+            retry_exceptions=(ExchangeRequestError,),
+            cleanup=lambda: log.warn('Requesting trades again'),
+            args=(asset, my_trades, start_dt, limit),
         )

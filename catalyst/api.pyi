@@ -77,6 +77,19 @@ def get_orderbook(asset, order_type='all', limit=None):
     limit : int, optional
     """
 
+def get_trades(asset, order_type='all', limit=None):
+    """Get the last trades of asset.exchange.
+
+    Parameters
+    ----------
+    asset : Asset
+        The asset .
+
+    order_type : str, optional
+
+    limit : int, optional
+    """
+
 
 def get_open_orders(asset=None):
     """Retrieve all of the current open orders.
